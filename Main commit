@@ -9,13 +9,38 @@ namespace c_
 {
     class Program
     {   
+
+
+        static int isValid(char[] str,int index)
+    {   int Rindex = index;
+    
+    if (!((str[index] >= 'a' && str[index] <= 'z')
+        || (str[index] >= 'A' && str[index] <= 'Z')
+        || str[index] == '_'))
+        return -1;
+    
+    for (int i =index; i < str.Length; i++)
+    {   index++;
+        if (!((str[i] >= 'a' && str[i] <= 'z')
+            || (str[i] >= 'A' && str[i] <= 'Z')
+            || (str[i] >= '0' && str[i] <= '9')
+            || str[i] == '_'))
+            return -1;
+    }
+ 
+   
+    return index;
+}
+
+
+
         int GetToken(char[] charcters ,int index){
 
          int[] AcceptStates = new int[]{3,4,5,6,7,8,9,19,20,21,28,29,30,31,32,33,34,35,36,37,38,39,40,58,70,78,82,84,90,95,110,120,122,125,126,134,139,147,148,149,150,152,153,154,156};
 
-        string[] TokenType = new string[]{"End Symbol","Arithmetic Operation","Arithmetic Operation","relational operators","relational operators","relational operators","Stat Symbol","Braces","Braces","Line Delimiter","Braces","Braces","Quotation Mark","Quotation Mark","Quotation Mark","relational operators","Comment","Comment","Access Operator","Comment","relational operators","relational operators","relational operators","Character","Integer","Condition","Switch","SInteger","Struct","Float","SFloat","Inclusion","Condition","Boolean","Class","Loop","Void","String","Inheritance","Return","Switch","Break","Constant","Arithmetic Operation","Logic operators"};
+        string[] TokenType = new string[]{"End Symbol","Arithmetic Operation","Arithmetic Operation","relational operators","relational operators","relational operators","Token Delimiter","Braces","Braces","Line Delimiter","Braces","Braces","Quotation Mark","Quotation Mark","Quotation Mark","relational operators","Comment","Comment","Access Operator","Comment","relational operators","relational operators","relational operators","Character","Integer","Condition","Switch","SInteger","Struct","Float","SFloat","Inclusion","Condition","Boolean","Class","Loop","Void","String","Inheritance","Return","Switch","Break","Constant","Arithmetic Operation","Logic operators"};
 
-               string[,] TransitionTable = new string[,]{{"!","$","-","/","<","=",">","@","B","C","D","E","F","I","O","R","S","T","V","[","]","^","a","c","d","e","f","g","h","i","k","l","m","n","o","p","q","r","s","t","u","v","w","y","{","}","’","“","”","0","1","2","3","4","5","6","7","8","9","+","*","&","|","~"},
+               string[,] TransitionTable = new string[,]{{"!","$","-","/","<","=",">","#","B","C","D","E","F","I","O","R","S","T","V","[","]","^","a","c","d","e","f","g","h","i","k","l","m","n","o","p","q","r","s","t","u","v","w","y","{","}","’","“","”","0","1","2","3","4","5","6","7","8","9","+","*","&","|","~"},
 {"2","3","4","5","6","7","8","9","10","11","12","13","0","14","0","15","16","17","18","19","20","21","0","22","0","0","0","0","0","23","0","24","0","0","0","25","0","0","26","0","0","0","27","0","28","29","30","31","32","153","153","153","153","153","153","153","153","153","153","154","154","155","155","156"},
 {"0","0","0","0","0","33","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},
 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},
@@ -180,12 +205,12 @@ namespace c_
      char nextChar;
         SuccessStates.Clear();
         SuccessStates.Push(-1);
-        string lexeme = "";
+        string lexeme = "",oldLexeme="";
         string Type = "";
         int indexOfChar=0;
-        int state =1,myIndex=index;
+        int state =1;
         while(state!=0){    
-            nextChar = charcters[myIndex];
+            nextChar = charcters[index];
             lexeme = lexeme + nextChar;
             SuccessStates.Push(state);
             //function to find the column which the char belongs to 
@@ -195,22 +220,21 @@ namespace c_
             }
             //our new state
             state = int.Parse(TransitionTable[state,indexOfChar]);
-            if (myIndex==charcters.Length+1){
+            index++;
+            oldLexeme=lexeme;
+            if (index==charcters.Length+1){
                 Console.WriteLine("OUT OF INDEX");
                 return -1;
             }
-            myIndex++;    
-            Console.WriteLine(myIndex);
         }
 
         while(state!=-1 && !AcceptStates.Contains(state)){
             state = SuccessStates.Pop();
-            myIndex--;
             if(lexeme.Length!=0){
             lexeme = lexeme.Remove(lexeme.Length-1, 1);
+
             }
-              
-            Console.WriteLine(lexeme + myIndex);
+             index--; 
          
         }
 
@@ -219,6 +243,16 @@ namespace c_
          Console.WriteLine(Type);
         }
 
+        else{
+            int x =isValid(charcters,index+1);
+            if(x>0){
+                Console.WriteLine("Identifier");
+                return -1;
+            }
+            else 
+                Console.WriteLine("there is an error");
+        }
+
           
           
           
@@ -227,8 +261,7 @@ namespace c_
           
           
           
-          Console.WriteLine(myIndex);
-          return myIndex;
+          return index;
         }
 
             
@@ -239,7 +272,7 @@ namespace c_
         static void Main(string[] args){
         int index=0;
         Program obj = new Program();
-        string line = "ity#";
+        string line = "ity#decrease";
         char[] characters = line.ToCharArray();
         while(index!=characters.Length-1 && index!=-1){
         index = obj.GetToken(characters,index);
@@ -266,3 +299,4 @@ namespace c_
  /*for(int i=0;i<characters.Length;i++){
         Console.Write(characters[i]);
         }*/
+           
